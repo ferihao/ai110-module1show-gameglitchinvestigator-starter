@@ -8,6 +8,10 @@ Answer each question in 3 to 5 sentences. Be specific and honest about what actu
 - List at least two concrete bugs you noticed at the start  
   (for example: "the hints were backwards").
 
+The game opened as a simple Streamlit page titled "Game Glitch Investigator" with the caption "An AI-generated guessing game. Something is off." A sidebar let me pick Easy, Normal or Hard, and the main area had a "Developer Debug Info" expander, a text box, and Submit / New Game buttons with a "Show hint" checkbox. On a fresh Normal game the banner already said "Attempts left: 7" even though the sidebar allowed 8. The app never crashed, so every bug showed up as wrong behavior, not an error message.
+
+The most obvious bug was that the hints were backwards: with the secret at 42, guessing 50 told me "Go HIGHER!" and guessing 30 told me "Go LOWER!". The second was that on even-numbered attempts the hints looked random, because app.py turned the secret into a string and compared the numbers alphabetically ("9" counted as bigger than "42"). I also found that New Game stayed stuck on "Game over" after a loss, and that a bad guess like "abc" used up an attempt.
+
 **Bug Reproduction Logs**
 
 Setup for every row: run `python3 -m streamlit run app.py`, open "Developer Debug Info" to read the secret, and use Normal difficulty unless stated. Rows 1-6 were reproduced with secret = 42.
