@@ -25,28 +25,46 @@ It wrote the code, ran away, and now the game is unplayable.
 
 ## 📝 Document Your Experience
 
-- [ ] Describe the game's purpose.
-- [ ] Detail which bugs you found.
-- [ ] Explain what fixes you applied.
+**Purpose.** A Streamlit number-guessing game. The player picks a difficulty, guesses the secret number within a limited number of attempts, gets a higher/lower hint after each guess, and earns or loses points.
+
+**Bugs found.** The full reproduction log (input, expected, actual, console output, code location) is in `reflection.md`, section 1. In short:
+- The hints were backwards: `check_guess` returned "Go HIGHER!" for a guess that was too high.
+- On even-numbered attempts `app.py` turned the secret into a string, so guesses were compared alphabetically (`"9" > "42"`), which made the hints look random.
+- Attempts were off by one: `attempts` started at 1, so the banner said 7 left on a fresh Normal game and the game ended after 7 guesses.
+- Invalid input such as `abc` used up an attempt.
+- New Game after a loss left the game stuck on "Game over", and it did not reset the score or history.
+- The score rules paid points for some wrong guesses, and the banner always said "between 1 and 100" whatever the difficulty.
+
+**Fixes applied.**
+- Swapped the hint messages in `check_guess`, so a high guess says "Go LOWER!" and a low guess says "Go HIGHER!".
+- Removed the `str(secret)` cast in `app.py`, so the secret is always compared as an integer. The string-compare fallback in `check_guess` is gone too.
+- Moved `get_range_for_difficulty`, `parse_guess`, `check_guess` and `update_score` into `logic_utils.py` and imported them in `app.py`.
+- Added pytest tests, including an `AppTest` regression test for the even-attempt bug.
+
+**Not fixed yet:** the off-by-one attempts, invalid input costing an attempt, the New Game reset, the score rules and the hardcoded range banner.
 
 ## 📸 Demo Walkthrough
 
-Describe your fixed game in numbered steps so a reader can follow along without watching a video:
+A sample game on Normal difficulty (range 1 to 100) with the secret set to 42. The secret is visible in "Developer Debug Info". Replayed against the fixed app.
 
-1. <!-- Describe this step -->
-2. <!-- Describe this step -->
-3. <!-- Describe this step -->
-4. <!-- Describe this step -->
-5. <!-- Add more steps as needed -->
+1. The player enters **20**. The game shows "Go HIGHER!" and the score drops to -5.
+2. The player enters **70**. The game shows "Go LOWER!" and the score drops to -10.
+3. The player enters **41**, on an even-numbered attempt. The game shows "Go HIGHER!" (before the fix it said "Go LOWER!") and the score drops to -15.
+4. The player enters **42**. The game shows "Correct!" and "You won! The secret was 42. Final score: 25", then balloons.
+5. Any further guess shows "You already won. Start a new game to play again."
 
-**Screenshot** *(optional)*: <!-- Insert a screenshot of your fixed, winning game here -->
+The final score of 25 comes from the scoring code as it still stands, which has the bugs listed above.
 
 ## 🧪 Test Results
 
+Output of `python3 -m pytest tests/`. These are the starter tests plus my added regression tests, not the Challenge 1 edge-case tests.
+
 ```
-# Paste your pytest output here, e.g.:
-# pytest tests/
-# ========================= X passed in 0.XXs =========================
+collected 5 items
+
+tests/test_game_logic.py .....                                           [100%]
+
+============================== 5 passed in 0.28s ===============================
 ```
 
 ## 🚀 Stretch Features

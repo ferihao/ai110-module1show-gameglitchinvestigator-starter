@@ -74,6 +74,8 @@ Setup for every row: run `python3 -m streamlit run app.py`, open "Developer Debu
 
 - How would you explain Streamlit "reruns" and session state to a friend who has never used Streamlit?
 
+Every time you click a button or type in a box, Streamlit runs the whole app.py script again from top to bottom, so ordinary variables are rebuilt from scratch on each click. `st.session_state` is a dictionary that survives those reruns, so it is where the game keeps the secret, attempts, score, status and history. That is why app.py wraps each one in `if "secret" not in st.session_state:`, which sets it only the first time. The README warned that the secret might change on every Submit, but I never saw that: it is guarded correctly, and the secret stayed the same across guesses in my tests. Reruns did cause a different problem. The "Attempts left" banner and the Debug Info panel are drawn near the top of the script, before the Submit code runs, so they show the state from before the guess and lag one guess behind.
+
 ---
 
 ## 5. Looking ahead: your developer habits
@@ -82,3 +84,9 @@ Setup for every row: run `python3 -m streamlit run app.py`, open "Developer Debu
   - This could be a testing habit, a prompting strategy, or a way you used Git.
 - What is one thing you would do differently next time you work with AI on a coding task?
 - In one or two sentences, describe how this project changed the way you think about AI generated code.
+
+**Habit to reuse:** run every new test against the original buggy code to confirm it fails, before trusting that it passes on the fix. This caught two weak tests of mine. One assertion passed on the old code because the bug was in app.py and not in `check_guess`. My first regression test used guess `9`, which passed by accident because two bugs cancelled each other out. Pinning the secret to a known value (42) also made the bugs reproducible.
+
+**Do differently next time:** settle the interface before the AI starts moving code. The starter tests expected `check_guess` to return a bare string, while the stub docstring and app.py use `(outcome, message)`, and I only found the mismatch after the refactor. Next time I would ask the AI to write the failing test first, and I would state the return contract in the prompt.
+
+**How my view changed:** AI-generated code can look tidy and still be wrong in ways that cancel each other out, so a hint that is right on one guess proves little. I now treat its code and its tests as drafts that I have to check by running them, not as answers.
