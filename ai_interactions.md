@@ -28,7 +28,7 @@
 
 | Edge Case | Prompt Used | AI-Suggested Test | Did It Pass? | Your Reasoning |
 |-----------|-------------|-------------------|--------------|----------------|
-| | | | | |
+| Even-numbered attempt (attempt 4) with secret 42 and guess `41` | "Ask your AI coding assistant to generate a pytest case ... that specifically targets the bug you just fixed." | `test_app_compares_numbers_on_even_attempts`: uses Streamlit's `AppTest`, sets the secret and attempts, guesses `41`, expects the "Go HIGHER!" warning | Yes on the fixed app. On the original app it gives "Go LOWER!", so it fails there. | The string cast was in `app.py`, not in `check_guess`, so a unit test of `check_guess` could not catch it. I also had to avoid guess `9`, which passed on the old app by accident because the two bugs cancelled out. `41` is wrong under both bugs, so it catches the regression. |
 | | | | | |
 | | | | | |
 
